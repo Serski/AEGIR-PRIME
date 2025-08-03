@@ -18,7 +18,9 @@
     "discord.js": "^14.21.0",
     "pino": "^9.7.0",
     "reflect-metadata": "^0.2.2",
-    "tsyringe": "^4.10.0"
+    "sqlite3": "^5.1.7",
+    "tsyringe": "^4.10.0",
+    "typeorm": "^0.3.25"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
