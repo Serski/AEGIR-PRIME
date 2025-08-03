@@ -1,5 +1,7 @@
+import { describe, it, expect } from 'vitest';
+
 describe('integration placeholder', () => {
   it('runs a placeholder test', () => {
-    // TODO: implement integration tests
+    expect(true).toBe(true);
   });
 });

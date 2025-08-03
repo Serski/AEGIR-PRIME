@@ -1,5 +1,7 @@
+import { describe, it, expect } from 'vitest';
+
 describe('unit placeholder', () => {
   it('runs a placeholder test', () => {
-    // TODO: implement unit tests
+    expect(true).toBe(true);
   });
 });
