@@ -1,4 +1,3 @@
-export interface Wallet {
-  id: string;
-  balance: number;
-}
+export * from './entities';
+export * from './value-objects';
+export * from './events';
