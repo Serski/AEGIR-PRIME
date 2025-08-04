@@ -1,2 +1,4 @@
-// Placeholder for characters domain layer
-export {};
+export interface Character {
+  id: string;
+  name: string;
+}
