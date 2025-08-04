@@ -40,7 +40,7 @@ export class DatabaseAdapter implements DatabaseClient {
   /** Run the provided callback inside a transaction. */
   async transaction<T>(fn: (prisma: PrismaClient) => Promise<T>): Promise<T> {
     await this.initialize();
-    return this.client.$transaction(fn);
+    return this.client.$transaction(fn as any) as unknown as T;
   }
 
   /** Disconnect the underlying Prisma client. */

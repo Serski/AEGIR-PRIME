@@ -43,24 +43,28 @@ export function createContainer(): DependencyContainer {
     useFactory: (c) => new Worker(c.resolve('logger'))
   });
 
-  child.register<CharacterRepository>(CHARACTER_REPOSITORY, {
-    useClass: InMemoryCharacterRepository
-  });
+  child.registerSingleton<CharacterRepository>(
+    CHARACTER_REPOSITORY,
+    InMemoryCharacterRepository
+  );
   child.register(CharacterService, { useClass: CharacterService });
 
-  child.register<WalletRepository>(WALLET_REPOSITORY, {
-    useClass: InMemoryWalletRepository
-  });
+  child.registerSingleton<WalletRepository>(
+    WALLET_REPOSITORY,
+    InMemoryWalletRepository
+  );
   child.register(EconomyService, { useClass: EconomyService });
 
-  child.register<ListingRepository>(LISTING_REPOSITORY, {
-    useClass: InMemoryListingRepository
-  });
+  child.registerSingleton<ListingRepository>(
+    LISTING_REPOSITORY,
+    InMemoryListingRepository
+  );
   child.register(MarketplaceService, { useClass: MarketplaceService });
 
-  child.register<ResearchRepository>(RESEARCH_REPOSITORY, {
-    useClass: InMemoryResearchRepository
-  });
+  child.registerSingleton<ResearchRepository>(
+    RESEARCH_REPOSITORY,
+    InMemoryResearchRepository
+  );
   child.register(ResearchService, { useClass: ResearchService });
 
   child.register<DatabaseClient>(DATABASE_CLIENT, { useClass: DatabaseAdapter });

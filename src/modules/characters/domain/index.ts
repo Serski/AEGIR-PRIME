@@ -1,4 +1,3 @@
-export interface Character {
-  id: string;
-  name: string;
-}
+export * from './entities';
+export * from './value-objects';
+export * from './events';
