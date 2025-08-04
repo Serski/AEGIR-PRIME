@@ -1,23 +1,58 @@
 import 'reflect-metadata';
 import { describe, it, beforeEach, afterEach, expect } from 'vitest';
+import sqlite3 from 'sqlite3';
 import { DatabaseAdapter } from '../../src/infrastructure/db/adapter';
-import type { DataSourceOptions } from 'typeorm';
+
+class MockPrismaClient {
+  private db = new sqlite3.Database(':memory:');
+
+  async $connect() {}
+
+  async $disconnect() {
+    this.db.close();
+  }
+
+  $queryRawUnsafe<T = unknown>(sql: string, ...params: any[]): Promise<T> {
+    return new Promise((resolve, reject) => {
+      if (/^select/i.test(sql)) {
+        this.db.all(sql, params, (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows as T);
+        });
+      } else {
+        this.db.run(sql, params, function (err) {
+          if (err) reject(err);
+          else resolve([] as unknown as T);
+        });
+      }
+    });
+  }
+
+  async $transaction<T>(fn: (client: MockPrismaClient) => Promise<T>): Promise<T> {
+    await this.$queryRawUnsafe('BEGIN');
+    try {
+      const result = await fn(this);
+      await this.$queryRawUnsafe('COMMIT');
+      return result;
+    } catch (e) {
+      await this.$queryRawUnsafe('ROLLBACK');
+      throw e;
+    }
+  }
+}
 
 let db: DatabaseAdapter;
-let options: DataSourceOptions;
+let client: MockPrismaClient;
 
 describe('DatabaseAdapter', () => {
   beforeEach(async () => {
-    options = {
-      type: 'sqlite',
-      database: ':memory:',
-    } as DataSourceOptions;
-    db = new DatabaseAdapter(options);
+    client = new MockPrismaClient();
+    db = new DatabaseAdapter(undefined, client as any);
     await db.initialize();
   });
 
   afterEach(async () => {
-    await db.destroy();
+    await db.disconnect();
   });
 
   it('executes raw queries', async () => {
@@ -30,16 +65,16 @@ describe('DatabaseAdapter', () => {
   it('supports transactions', async () => {
     await db.query('CREATE TABLE trans (id INTEGER PRIMARY KEY, name TEXT)');
 
-    await db.transaction(async (manager) => {
-      await manager.query('INSERT INTO trans(name) VALUES (?)', ['Bob']);
+    await db.transaction(async (tx) => {
+      await tx.$queryRawUnsafe('INSERT INTO trans(name) VALUES (?)', 'Bob');
     });
 
     const rows = await db.query<{ name: string }[]>('SELECT name FROM trans');
     expect(rows).toEqual([{ name: 'Bob' }]);
 
     await expect(
-      db.transaction(async (manager) => {
-        await manager.query('INSERT INTO trans(name) VALUES (?)', ['Carol']);
+      db.transaction(async (tx) => {
+        await tx.$queryRawUnsafe('INSERT INTO trans(name) VALUES (?)', 'Carol');
         throw new Error('rollback');
       })
     ).rejects.toThrow();

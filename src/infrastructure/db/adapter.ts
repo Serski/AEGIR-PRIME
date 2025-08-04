@@ -1,60 +1,56 @@
-import { DataSource, DataSourceOptions, EntityManager } from 'typeorm';
+import { PrismaClient } from '@prisma/client';
+
+export interface DatabaseClient {
+  initialize(): Promise<void>;
+  query<T = unknown>(sql: string, params?: unknown[]): Promise<T>;
+  transaction<T>(fn: (prisma: PrismaClient) => Promise<T>): Promise<T>;
+  disconnect(): Promise<void>;
+  readonly client: PrismaClient;
+}
+
+export const DATABASE_CLIENT = 'DatabaseClient';
 
 /**
- * Thin wrapper around TypeORM's DataSource that provides
- * basic connection handling, query execution and
- * transaction management for the application.
+ * Wrapper around PrismaClient providing basic helpers for raw queries and
+ * transactional execution. The client is lazily connected on first use.
  */
-export class DatabaseAdapter {
-  private dataSource?: DataSource;
+export class DatabaseAdapter implements DatabaseClient {
+  public readonly client: PrismaClient;
+  private initialized = false;
 
-  constructor(private readonly options: DataSourceOptions) {}
+  constructor(options?: ConstructorParameters<typeof PrismaClient>[0], client?: PrismaClient) {
+    this.client = client ?? new PrismaClient(options);
+  }
 
-  /**
-   * Initialize the database connection if it hasn't been already.
-   */
+  /** Connect to the database if not already connected. */
   async initialize(): Promise<void> {
-    if (this.dataSource && this.dataSource.isInitialized) {
+    if (this.initialized) {
       return;
     }
-
-    this.dataSource = new DataSource(this.options);
-    await this.dataSource.initialize();
+    await this.client.$connect();
+    this.initialized = true;
   }
 
-  /**
-   * Run a raw SQL query using the current connection.
-   * @param sql SQL query string
-   * @param parameters optional parameters for the query
-   */
-  async query<T = any>(sql: string, parameters?: any[]): Promise<T[]> {
-    if (!this.dataSource || !this.dataSource.isInitialized) {
-      throw new Error('Database not initialized');
-    }
-
-    return this.dataSource.query(sql, parameters);
+  /** Execute a raw SQL query using Prisma's unsafe interface. */
+  async query<T = unknown>(sql: string, params: unknown[] = []): Promise<T> {
+    await this.initialize();
+    return (await this.client.$queryRawUnsafe(sql, ...params)) as unknown as T;
   }
 
-  /**
-   * Execute the provided function within a transaction.
-   * Any error thrown by the function will cause the transaction to
-   * roll back.
-   */
-  async transaction<T>(runInTransaction: (manager: EntityManager) => Promise<T>): Promise<T> {
-    if (!this.dataSource || !this.dataSource.isInitialized) {
-      throw new Error('Database not initialized');
-    }
-
-    return this.dataSource.transaction(runInTransaction);
+  /** Run the provided callback inside a transaction. */
+  async transaction<T>(fn: (prisma: PrismaClient) => Promise<T>): Promise<T> {
+    await this.initialize();
+    return this.client.$transaction(fn);
   }
 
-  /**
-   * Close the database connection.
-   */
-  async destroy(): Promise<void> {
-    if (this.dataSource && this.dataSource.isInitialized) {
-      await this.dataSource.destroy();
+  /** Disconnect the underlying Prisma client. */
+  async disconnect(): Promise<void> {
+    if (!this.initialized) {
+      return;
     }
+    await this.client.$disconnect();
+    this.initialized = false;
   }
 }
 
+export default DatabaseAdapter;

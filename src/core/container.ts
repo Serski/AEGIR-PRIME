@@ -3,6 +3,15 @@ import { container, DependencyContainer } from 'tsyringe';
 import { Worker } from './worker';
 import { logger, Logger } from './logger';
 import {
+  DatabaseAdapter,
+  DATABASE_CLIENT,
+  DatabaseClient,
+} from '../infrastructure/db/adapter';
+import { CacheAdapter, CACHE_CLIENT, CacheClient } from '../infrastructure/cache/adapter';
+import { QueueAdapter, QUEUE_CLIENT, QueueClient } from '../infrastructure/queue/adapter';
+import { StorageAdapter, STORAGE_CLIENT, StorageClient } from '../infrastructure/storage/adapter';
+import { ImagingAdapter, IMAGING_CLIENT, ImagingClient } from '../infrastructure/imaging/adapter';
+import {
   CharacterService,
   InMemoryCharacterRepository,
   CHARACTER_REPOSITORY,
@@ -53,6 +62,14 @@ export function createContainer(): DependencyContainer {
     useClass: InMemoryResearchRepository
   });
   child.register(ResearchService, { useClass: ResearchService });
+
+  child.register<DatabaseClient>(DATABASE_CLIENT, { useClass: DatabaseAdapter });
+  child.register<CacheClient>(CACHE_CLIENT, { useClass: CacheAdapter });
+  child.register<QueueClient>(QUEUE_CLIENT, {
+    useFactory: () => new QueueAdapter('default'),
+  });
+  child.register<StorageClient>(STORAGE_CLIENT, { useClass: StorageAdapter });
+  child.register<ImagingClient>(IMAGING_CLIENT, { useClass: ImagingAdapter });
 
   return child;
 }
