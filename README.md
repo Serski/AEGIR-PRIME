@@ -75,3 +75,7 @@ If these variables are absent, the E2E tests are skipped.
 - **Data Layer** – Database adapters and persistence models.
 - **Utilities** – Shared helpers, configuration loaders, and logging.
 
+
+## Automation Examples
+
+Example scripts for BullMQ and Photoshop ExtendScript are located in the `automation` directory. See the READMEs in `automation/jobs` and `automation/jsx` for setup and usage instructions.
