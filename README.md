@@ -51,6 +51,15 @@ Run the test suite with:
 npm test
 ```
 
+#### E2E Tests
+
+End-to-end tests connect to a staging Discord guild. Before running them, set the following environment variables:
+
+- `BOT_TOKEN` – Discord bot token used for authentication.
+- `STAGING_GUILD_ID` – ID of the staging guild used for testing.
+
+If these variables are absent, the E2E tests are skipped.
+
 ## Architecture Overview
 
 ```
