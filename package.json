@@ -21,7 +21,8 @@
     "sharp": "^0.34.3",
     "sqlite3": "^5.1.7",
     "tsyringe": "^4.10.0",
-    "typeorm": "^0.3.25"
+    "typeorm": "^0.3.25",
+    "axios": "^1.7.2"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
