@@ -14,15 +14,18 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "axios": "^1.7.2",
     "bullmq": "^5.56.9",
     "discord.js": "^14.21.0",
     "pino": "^9.7.0",
+    "prisma": "^6.13.0",
+    "redis": "^4.7.1",
     "reflect-metadata": "^0.2.2",
     "sharp": "^0.34.3",
     "sqlite3": "^5.1.7",
     "tsyringe": "^4.10.0",
-    "typeorm": "^0.3.25",
-    "axios": "^1.7.2"
+    "typeorm": "^0.3.25"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",

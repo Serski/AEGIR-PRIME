@@ -14,13 +14,24 @@ export interface StorageAdapterOptions {
   baseUrl?: string;
 }
 
+export interface StorageClient {
+  save(filePath: string, content: Buffer | string): Promise<void>;
+  read(filePath: string): Promise<Buffer>;
+  update(filePath: string, content: Buffer | string): Promise<void>;
+  delete(filePath: string): Promise<void>;
+  exists(filePath: string): Promise<boolean>;
+  generateUrl(filePath: string): string;
+}
+
+export const STORAGE_CLIENT = 'StorageClient';
+
 /**
  * Simple storage adapter that persists files to the local filesystem. The
  * implementation is intentionally lightweight but exposes a small API that
  * mimics what a remote storage service (such as S3) would provide. This makes
  * it trivial to later swap the implementation for a different backend.
  */
-export class StorageAdapter {
+export class StorageAdapter implements StorageClient {
   private root: string;
   private baseUrl: string | undefined;
 

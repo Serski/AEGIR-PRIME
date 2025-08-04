@@ -1,12 +1,29 @@
 import type sharpType from 'sharp';
 
+export interface ImagingClient {
+  resize(image: Buffer, width: number, height: number): Promise<Buffer>;
+  crop(
+    image: Buffer,
+    width: number,
+    height: number,
+    left?: number,
+    top?: number,
+  ): Promise<Buffer>;
+  convertFormat(
+    image: Buffer,
+    format: 'jpeg' | 'png' | 'webp' | 'gif' | 'tiff' | 'avif',
+  ): Promise<Buffer>;
+}
+
+export const IMAGING_CLIENT = 'ImagingClient';
+
 /**
  * Thin wrapper around the `sharp` imaging library providing a minimal
  * asynchronous API for common transformations. Each operation accepts a
  * `Buffer` with image data and returns a new `Buffer` with the transformation
  * applied.
  */
-export class ImagingAdapter {
+export class ImagingAdapter implements ImagingClient {
   private readonly sharpInstance = import('sharp').then((m) => m.default as typeof sharpType);
 
   private async sharp() {

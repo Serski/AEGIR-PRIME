@@ -1,46 +1,62 @@
-export interface CacheEntry<T = unknown> {
-  value: T;
-  expiresAt?: number;
+import { createClient, type RedisClientType, type RedisClientOptions } from 'redis';
+
+export interface CacheClient {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  set<T>(key: string, value: T, ttl?: number): Promise<void>;
+  get<T>(key: string): Promise<T | null>;
+  delete(key: string): Promise<number>;
 }
+
+export const CACHE_CLIENT = 'CacheClient';
 
 /**
- * Lightweight in-memory cache adapter that mimics a Redis like API.  It
- * supports storing values with optional TTL (in milliseconds) and exposing
- * asynchronous methods for getting, setting and deleting entries.
+ * Redis backed cache adapter exposing a minimal async API for storing and
+ * retrieving JSON serialisable values.
  */
-export class CacheAdapter {
-  private readonly store = new Map<string, CacheEntry>();
+export class CacheAdapter implements CacheClient {
+  private client: RedisClientType<any, any, any>;
 
-  /**
-   * Store a value by key with optional TTL in milliseconds.
-   */
+  constructor(options?: RedisClientOptions<any, any>) {
+    this.client = createClient(options);
+  }
+
+  private async ensure(): Promise<void> {
+    if (!this.client.isOpen) {
+      await this.client.connect();
+    }
+  }
+
+  async connect(): Promise<void> {
+    await this.ensure();
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.client.isOpen) {
+      await this.client.disconnect();
+    }
+  }
+
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
-    const expiresAt = typeof ttl === 'number' ? Date.now() + ttl : undefined;
-    this.store.set(key, { value, expiresAt });
+    await this.ensure();
+    const payload = JSON.stringify(value);
+    if (ttl) {
+      await this.client.set(key, payload, { PX: ttl });
+    } else {
+      await this.client.set(key, payload);
+    }
   }
 
-  /**
-   * Retrieve a value by key if present and not expired.
-   */
-  async get<T>(key: string): Promise<T | undefined> {
-    const entry = this.store.get(key);
-    if (!entry) {
-      return undefined;
-    }
-
-    if (entry.expiresAt && entry.expiresAt <= Date.now()) {
-      this.store.delete(key);
-      return undefined;
-    }
-
-    return entry.value as T;
+  async get<T>(key: string): Promise<T | null> {
+    await this.ensure();
+    const result = await this.client.get(key);
+    return result ? (JSON.parse(result) as T) : null;
   }
 
-  /**
-   * Delete a value from the cache.
-   */
-  async delete(key: string): Promise<boolean> {
-    return this.store.delete(key);
+  async delete(key: string): Promise<number> {
+    await this.ensure();
+    return this.client.del(key);
   }
 }
 
+export default CacheAdapter;

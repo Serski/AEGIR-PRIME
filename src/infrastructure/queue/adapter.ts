@@ -1,12 +1,22 @@
-import type { QueueOptions, JobsOptions, Job } from 'bullmq';
+import type { QueueOptions, JobsOptions, Job, WorkerOptions } from 'bullmq';
 import { Queue, Worker } from 'bullmq';
+
+export interface QueueClient {
+  enqueue<T = unknown>(data: T, name?: string, opts?: JobsOptions): Promise<Job<T>>;
+  process<T = unknown>(handler: (job: Job<T>) => Promise<unknown>, opts?: WorkerOptions): Worker;
+  acknowledge(job: Job): Promise<void>;
+  getJob(id: string): Promise<Job | null>;
+  close(): Promise<void>;
+}
+
+export const QUEUE_CLIENT = 'QueueClient';
 
 /**
  * Simple wrapper around BullMQ that exposes helpers for adding and
  * processing jobs.  The adapter is purposely small – it only implements the
  * bits of functionality that are exercised in the unit tests.
  */
-export class QueueAdapter {
+export class QueueAdapter implements QueueClient {
   private readonly queue: Queue;
   private worker?: Worker;
 
@@ -25,9 +35,10 @@ export class QueueAdapter {
    * Register a processor that will handle jobs for this queue.
    * Returns the created worker so callers may listen to events.
    */
-  process<T = unknown>(handler: (job: Job<T>) => Promise<unknown>) {
+  process<T = unknown>(handler: (job: Job<T>) => Promise<unknown>, opts?: WorkerOptions) {
     this.worker = new Worker<T>(this.queue.name, handler, {
       connection: this.queue.opts.connection,
+      ...opts,
     });
 
     return this.worker;
