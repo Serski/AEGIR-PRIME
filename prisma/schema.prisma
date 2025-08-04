@@ -1,0 +1,34 @@
+// Prisma schema for AEGIR-PRIME
+
+// Generator for Prisma Client
+// (run `npx prisma generate` to generate the client)
+generator client {
+  provider = "prisma-client-js"
+}
+
+// SQLite datasource (update DATABASE_URL if needed)
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Character {
+  id   String @id @default(uuid())
+  name String
+}
+
+model Wallet {
+  id      String @id @default(uuid())
+  balance Int
+}
+
+model Listing {
+  id    String @id @default(uuid())
+  title String
+  price Int
+}
+
+model Technology {
+  id   String @id @default(uuid())
+  name String
+}
