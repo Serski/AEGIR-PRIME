@@ -75,6 +75,8 @@ If these variables are absent, the E2E tests are skipped.
 - **Data Layer** – Database adapters and persistence models.
 - **Utilities** – Shared helpers, configuration loaders, and logging.
 
+For a step-by-step walkthrough on adding new modules to the project, see [Creating a Module](docs/creating-modules.md).
+
 
 ## Automation Examples
 
