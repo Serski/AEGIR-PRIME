@@ -2,7 +2,10 @@ import {
   Client,
   GatewayIntentBits,
   type ClientOptions,
+  type ApplicationCommandDataResolvable,
 } from 'discord.js';
+import { eventGateway, type EventGatewayOptions } from './eventGateway';
+import { registerGuildCommands } from './registerGuildCommands';
 
 /**
  * Minimal wrapper around the `discord.js` client exposing a small,
@@ -59,5 +62,29 @@ export class DiscordTransportAdapter {
     const client = this.getClient();
     client.on(event, listener);
   }
+
+  /**
+   * Register commonly used Discord gateway events like `ready` and
+   * `interactionCreate`.
+   */
+  useEventGateway(options: EventGatewayOptions): void {
+    const client = this.getClient();
+    eventGateway(client, options);
+  }
+
+  /**
+   * Register slash commands for the specified guild.
+   */
+  async registerGuildCommands(
+    guildId: string,
+    commands: ApplicationCommandDataResolvable[],
+  ): Promise<void> {
+    const client = this.getClient();
+    await registerGuildCommands(client, guildId, commands);
+  }
 }
+
+export { eventGateway, registerGuildCommands };
+export type { EventGatewayOptions };
+export * as guards from './guards';
 
