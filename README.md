@@ -12,7 +12,16 @@ npm install
 ```
 
 ### Environment Variables
-Configuration is handled through environment variables stored in an `.env` file at the project root. A typical configuration might look like:
+Configuration is handled through environment variables stored in an `.env` file at the project root.
+
+The REST server honors the following variables:
+
+- `PORT` – Sets the TCP port the Express server listens on. Defaults to `3000`.
+- `NODE_ENV` – Specifies the runtime environment (`development`, `production`, or `test`) and toggles environment-specific behavior such as logging verbosity.
+
+All REST routes are mounted at the root path (`/`).
+
+A typical configuration might look like:
 
 ```
 # .env
