@@ -1,66 +1,20 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
+import express from 'express';
+import { Server } from 'http';
+
+import * as routes from './routes';
+import { runtimeConfig } from '../../config/runtime';
 
 /**
- * Simple REST transport adapter built on top of Axios. The adapter exposes
- * convenience methods for common HTTP verbs and handles basic error
- * translation and JSON response parsing.
+ * Start the REST server using Express. All routers exported from the routes
+ * directory are registered and the server listens on the configured port.
  */
-export class RestTransportAdapter {
-  private readonly client: AxiosInstance;
+export function startServer(): Server {
+  const app = express();
 
-  constructor(baseURL?: string, config: AxiosRequestConfig = {}) {
-    this.client = axios.create({ baseURL, ...config });
-  }
+  Object.values(routes).forEach((router) => {
+    app.use(router);
+  });
 
-  private async request<T>(
-    method: 'get' | 'post' | 'put' | 'patch' | 'delete',
-    url: string,
-    data?: unknown,
-    config: AxiosRequestConfig = {},
-  ): Promise<T> {
-    try {
-      const res: AxiosResponse<T> = await this.client.request({
-        method,
-        url,
-        data,
-        ...config,
-      });
-      return res.data;
-    } catch (err) {
-      const error = err as AxiosError;
-      const status = error.response?.status;
-      const statusText = error.response?.statusText;
-      throw new Error(
-        `HTTP ${method.toUpperCase()} ${url} failed: ${status ?? ''} ${
-          statusText ?? error.message
-        }`,
-      );
-    }
-  }
-
-  get<T>(url: string, config?: AxiosRequestConfig) {
-    return this.request<T>('get', url, undefined, config);
-  }
-
-  post<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return this.request<T>('post', url, data, config);
-  }
-
-  put<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return this.request<T>('put', url, data, config);
-  }
-
-  patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return this.request<T>('patch', url, data, config);
-  }
-
-  delete<T>(url: string, config?: AxiosRequestConfig) {
-    return this.request<T>('delete', url, undefined, config);
-  }
+  return app.listen(runtimeConfig.port);
 }
 
