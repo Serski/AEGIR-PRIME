@@ -1,2 +1,5 @@
-// Placeholder for marketplace domain layer
-export {};
+export interface Listing {
+  id: string;
+  title: string;
+  price: number;
+}

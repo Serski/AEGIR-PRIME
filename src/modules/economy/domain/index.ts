@@ -1,2 +1,4 @@
-// Placeholder for economy domain layer
-export {};
+export interface Wallet {
+  id: string;
+  balance: number;
+}

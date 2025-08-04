@@ -1,2 +1,4 @@
-// Placeholder for research domain layer
-export {};
+export interface Technology {
+  id: string;
+  name: string;
+}
