@@ -2,8 +2,8 @@ import { env } from 'process';
 
 export interface DiscordConfig {
   token: string;
-  clientId: string;
-  guildId: string;
+  clientId?: string;
+  guildId?: string;
 }
 
 function requireEnv(key: string): string {
@@ -14,10 +14,14 @@ function requireEnv(key: string): string {
   return value;
 }
 
+function getEnv(key: string): string | undefined {
+  return env[key];
+}
+
 const config: DiscordConfig = {
   token: requireEnv('DISCORD_TOKEN'),
-  clientId: requireEnv('DISCORD_CLIENT_ID'),
-  guildId: requireEnv('DISCORD_GUILD_ID')
+  clientId: getEnv('DISCORD_CLIENT_ID'),
+  guildId: getEnv('DISCORD_GUILD_ID'),
 };
 
 export const discordConfig: Readonly<DiscordConfig> = Object.freeze(config);
