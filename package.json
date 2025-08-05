@@ -2,11 +2,11 @@
   "name": "aegir-prime",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/core/index.js",
+  "main": "dist/bot/index.js",
   "scripts": {
     "dev": "ts-node src/core/index.ts",
     "build": "tsc",
-    "start": "npm run build && node .",
+    "start": "npm run build && node dist/bot/index.js",
     "test": "npm run build && vitest run"
   },
   "keywords": [],
