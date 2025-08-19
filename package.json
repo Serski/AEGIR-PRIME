@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/bot/index.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.6.0"
   },
   "scripts": {
     "dev": "ts-node src/core/index.ts",
@@ -15,7 +15,7 @@
     "test": "npm run build && vitest run"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node --import tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
