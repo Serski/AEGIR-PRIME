@@ -29,7 +29,22 @@ async function main(): Promise<void> {
         return;
       }
 
-      await command.execute(interaction);
+      try {
+        await command.execute(interaction);
+      } catch (err) {
+        logger.error(err, 'Error executing command');
+        if (interaction.deferred || interaction.replied) {
+          await interaction.followUp({
+            content: 'There was an error while executing this command',
+            ephemeral: true,
+          });
+        } else {
+          await interaction.reply({
+            content: 'There was an error while executing this command',
+            ephemeral: true,
+          });
+        }
+      }
     },
   });
 }
