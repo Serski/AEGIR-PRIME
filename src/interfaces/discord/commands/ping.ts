@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from 'discord.js';
+import { SlashCommandBuilder, MessageFlags, type ChatInputCommandInteraction } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
   .setName('ping')
@@ -9,6 +9,6 @@ export async function execute(
 ): Promise<void> {
   await interaction.reply({
     content: `pong ${process.uptime()}`,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
