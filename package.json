@@ -10,7 +10,7 @@
     "dev": "ts-node src/core/index.ts",
     "build": "tsc",
     "start": "npm run build && node dist/bot/index.js",
-    "prestart": "prisma generate && prisma migrate deploy && npm run db:seed --if-present",
+    "prestart": "prisma generate && prisma db push && npm run db:seed --if-present",
     "db:seed": "prisma db seed",
     "test": "npm run build && vitest run"
   },
