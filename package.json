@@ -33,14 +33,14 @@
     "sharp": "^0.34.3",
     "sqlite3": "^5.1.7",
     "tsyringe": "^4.10.0",
-    "typeorm": "^0.3.25"
+    "typeorm": "^0.3.25",
+    "tsx": "^3.12.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",
     "pino-pretty": "^13.1.1",
     "prisma": "^6.13.0",
-    "tsx": "^3.12.3",
     "redis-server": "^1.2.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
