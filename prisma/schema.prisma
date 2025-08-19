@@ -12,23 +12,39 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Character {
-  id   String @id @default(uuid())
-  name String
+enum ItemCategory {
+  RESOURCE
+  SHIP
+  GENERAL
 }
 
-model Wallet {
-  id      String @id @default(uuid())
-  balance Int
+model Player {
+  id        String   @id @default(cuid())
+  discordId String   @unique
+  name      String
+  bio       String?
+  gold      Int      @default(100000)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Listing {
-  id    String @id @default(uuid())
-  title String
-  price Int
+model Item {
+  id        String       @id @default(cuid())
+  key       String       @unique
+  name      String
+  category  ItemCategory
+  stackable Boolean      @default(true)
+  inventories Inventory[]
 }
 
-model Technology {
-  id   String @id @default(uuid())
-  name String
+model Inventory {
+  id        String @id @default(cuid())
+  playerId  String
+  itemId    String
+  quantity  Int    @default(0)
+  player    Player @relation(fields: [playerId], references: [id])
+  item      Item   @relation(fields: [itemId], references: [id])
+
+  @@unique([playerId, itemId])
 }
+
